@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pitlane OS – Votre garage, en mode jeu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e6ecf5;--glass:rgba(255,255,255,.76);--ink:#0f1b33;--mu:#5d6b86;--ln:rgba(15,27,51,.11);--acc:#1e63f5;--ok:#0f9f68;--warn:#d9820b;--card:rgba(255,255,255,.7);--sans:"Inter Tight",system-ui,sans-serif;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--glass:rgba(16,26,46,.78);--ink:#e8efff;--mu:#93a3c4;--ln:rgba(200,215,255,.14);--acc:#4c8bff;--ok:#2fd39a;--warn:#f0a43a;--card:rgba(255,255,255,.06);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1220;--glass:rgba(16,26,46,.78);--ink:#e8efff;--mu:#93a3c4;--ln:rgba(200,215,255,.14);--acc:#4c8bff;--ok:#2fd39a;--warn:#f0a43a;--card:rgba(255,255,255,.06);color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.45}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab}#gl:active{cursor:grabbing}
+.g{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--ln);box-shadow:0 12px 40px -16px rgba(20,50,120,.35)}
+#tags{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.tag{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;padding:.3rem .55rem;border-radius:9px;font-size:11px;font-weight:600;white-space:nowrap;will-change:transform;display:flex;gap:.4rem;align-items:center}
+.tag small{font-weight:500;color:var(--mu)}.tag b{color:var(--acc)}.tag.sel{outline:2px solid var(--acc)}.tag.al b{color:var(--warn)}
+.top{position:fixed;left:calc(14px + env(safe-area-inset-left,0px));top:calc(14px + env(safe-area-inset-top,0px));display:flex;gap:.6rem;align-items:center;z-index:5}
+.brand{padding:.5rem .9rem;border-radius:14px;font-weight:700;letter-spacing:-.02em;font-size:16px}.brand span{color:var(--acc)}
+.lvl{display:flex;gap:.7rem;align-items:center;padding:.4rem .8rem;border-radius:14px}.lvl small{display:block;color:var(--mu);font-size:10px}.lvl b{font-size:12px}
+.xp{width:90px;height:6px;border-radius:9px;background:var(--ln);overflow:hidden}.xp i{display:block;height:100%;background:var(--acc);transition:width .5s}
+.ib{width:38px;height:38px;border-radius:12px;font-size:16px}
+.zones{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;gap:2px;padding:4px;border-radius:14px;z-index:5;max-width:calc(100% - 28px);overflow-x:auto}
+.zones button{padding:.5rem .9rem;border-radius:10px;font-weight:600;font-size:12.5px;color:var(--mu);white-space:nowrap}
+.zones button.on{background:var(--acc);color:#fff}
+.panel{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));top:calc(70px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:360px;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;z-index:5}
+.pt{display:flex;padding:6px;gap:2px;border-bottom:1px solid var(--ln)}
+.pt button{flex:1;padding:.5rem 0;border-radius:10px;font-weight:600;font-size:12.5px;color:var(--mu)}.pt button.on{background:rgba(30,99,245,.12);color:var(--acc)}
+#pb{flex:1;overflow:auto;padding:14px}
+h3{font-size:12px;color:var(--mu);font-weight:600;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.06em}h3:first-child{margin-top:0}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.k{padding:.7rem .8rem;border-radius:14px;background:var(--card);border:1px solid var(--ln)}.k small{color:var(--mu);font-size:11px}.k b{display:block;font-size:22px;letter-spacing:-.03em}
+.k.hi{grid-column:span 2;background:linear-gradient(135deg,var(--acc),#6aa2ff);color:#fff;border:0}.k.hi small{color:rgba(255,255,255,.8)}
+.ms{display:flex;gap:.6rem;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--ln);font-size:13px}.ms i{width:18px;height:18px;border-radius:50%;border:2px solid var(--ln);display:grid;place-items:center;font-size:10px;font-style:normal;flex:none}.ms.ok i{background:var(--ok);border-color:var(--ok);color:#fff}.ms.ok{color:var(--mu)}
+.fd{padding:.45rem 0;border-bottom:1px solid var(--ln);font-size:12.5px;display:flex;gap:.6rem}.fd small{color:var(--mu);flex:none}
+.cd{display:flex;gap:.7rem;align-items:center;padding:.65rem;border-radius:14px;background:var(--card);border:1px solid var(--ln);margin-bottom:6px;width:100%;text-align:left}
+.cd:hover{border-color:var(--acc)}.cd.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.av{width:34px;height:34px;border-radius:50%;background:rgba(30,99,245,.14);color:var(--acc);display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}
+.cd div{flex:1;min-width:0}.cd b{display:block;font-size:13px}.cd small{color:var(--mu);font-size:11.5px}
+.ch{padding:.2rem .5rem;border-radius:99px;font-size:10.5px;font-weight:600;background:rgba(30,99,245,.12);color:var(--acc)}.ch.w{background:rgba(217,130,11,.15);color:var(--warn)}.ch.o{background:rgba(15,159,104,.15);color:var(--ok)}
+.sm{padding:.35rem .7rem;border-radius:9px;background:var(--acc);color:#fff;font-size:11.5px;font-weight:600}
+input[type=text]{width:100%;padding:.6rem .8rem;border-radius:11px;border:1px solid var(--ln);background:var(--card);color:var(--ink);font:inherit;outline:0;margin-bottom:8px}input:focus{border-color:var(--acc)}
+.fl{display:flex;gap:6px;margin-bottom:10px}.fl button{padding:.3rem .7rem;border-radius:99px;border:1px solid var(--ln);font-size:12px;font-weight:600;color:var(--mu)}.fl button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.ru{display:flex;gap:.8rem;align-items:center;padding:.8rem;border-radius:14px;background:var(--card);border:1px solid var(--ln);margin-bottom:6px}.ru div{flex:1}.ru b{font-size:13px}.ru small{display:block;color:var(--mu);font-size:11.5px}
+.sw{width:42px;height:24px;border-radius:99px;background:var(--ln);position:relative;transition:background .2s;flex:none}.sw:after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}.sw[aria-pressed="true"]{background:var(--ok)}.sw[aria-pressed="true"]:after{transform:translateX(18px)}
+.steps{position:fixed;left:calc(50% - 180px);transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(640px,calc(100% - 420px));display:flex;gap:1.2rem;align-items:center;padding:.8rem 1.1rem;border-radius:18px;z-index:5}
+.sh b{display:block;font-size:13px;white-space:nowrap}.sh small{color:var(--mu);font-size:11px;white-space:nowrap}
+.st{flex:1;display:flex}.s{flex:1;position:relative;text-align:center;font-size:10px;color:var(--mu)}
+.s i{display:block;width:16px;height:16px;border-radius:50%;border:2px solid var(--acc);margin:0 auto 4px;background:var(--bg);position:relative;z-index:1}
+.s.d i{background:var(--acc)}.s.c i{box-shadow:0 0 0 4px rgba(30,99,245,.25)}.s.c{color:var(--ink);font-weight:600}
+.s+.s:before{content:"";position:absolute;top:7px;right:50%;width:100%;height:2px;background:var(--ln)}.s.d:before,.s.c:before{background:var(--acc)}
+.nx{padding:.65rem 1rem;border-radius:12px;background:var(--acc);color:#fff;font-weight:600;font-size:12.5px;white-space:nowrap}.nx[disabled]{opacity:.5;cursor:default}
+.hint{position:fixed;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));padding:.5rem .8rem;border-radius:12px;font-size:11px;color:var(--mu);z-index:4;display:none}
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translate(-50%,-14px);opacity:0;padding:.7rem 1.1rem;border-radius:14px;z-index:20;font-weight:600;font-size:13px;transition:.3s;pointer-events:none;max-width:90vw;text-align:center}.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(min-width:861px){.hint{display:block;bottom:calc(92px + env(safe-area-inset-bottom,0px))}}
+@media(max-width:860px){
+  .panel{left:12px;right:12px;width:auto;top:auto;height:42vh}.steps{display:none}.lvl{display:none}
+  .zones{top:calc(62px + env(safe-area-inset-top,0px))}
+}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-label="Carte 3D du garage"></canvas>
+<div id="tags"></div>
+<header class="top"><div class="brand g">Pitlane<span> OS</span></div><div class="lvl g"><div><small id="ln">Niveau 1</small><b id="lt">Apprenti</b></div><div class="xp"><i id="xp"></i></div></div><button class="ib g" id="th" aria-label="Changer de thème">◐</button></header>
+<nav class="zones g" id="zones"><button class="on" data-z="all">Vue globale</button><button data-z="atelier">Atelier</button><button data-z="stock">Stock</button><button data-z="accueil">Accueil</button><button data-z="parking">Parking</button></nav>
+<aside class="panel g"><div class="pt" id="pt"><button class="on" data-t="pil">Pilotage</button><button data-t="ord">Ordres</button><button data-t="crm">CRM</button><button data-t="aut">Automations</button></div><div id="pb"></div></aside>
+<section class="steps g" id="steps"></section>
+<div class="hint g">Clic gauche : tourner · Clic droit : déplacer · Molette : zoom · Clic sur un véhicule : le suivre</div>
+<div class="toast g" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(()=>{
+const T=THREE,$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+/* ——— données ——— */
+const STEPS=['Réception','Diagnostic','Devis','Réparation','Contrôle','Livraison'],LV=['Apprenti','Mécano','Chef d’atelier','Garage Pro','Légende'];
+const V=[{id:'OR-24835',m:'Seat Ibiza',pl:'GH-482-LP',cl:'M. Durand',s:3,bay:0,col:0x1e63f5,amt:640},{id:'OR-24836',m:'Renault Clio V',pl:'FD-117-QM',cl:'Mme Lopez',s:2,bay:1,col:0xf5f8fc,amt:380},{id:'OR-24837',m:'Peugeot 308',pl:'EA-902-TS',cl:'Taxi Bleu SARL',s:1,bay:2,col:0x1c2434,amt:910},{id:'OR-24838',m:'Tesla Model 3',pl:'GT-221-AB',cl:'M. Benali',s:0,park:0,col:0xf5f8fc,amt:260},{id:'OR-24839',m:'Dacia Sandero',pl:'FK-008-ZR',cl:'Mme Petit',s:0,park:1,col:0x8bb6ff,amt:190}];
+const RULES=[{k:'rdv',n:'Check-in client automatique',d:'Fiche client créée dès que la plaque est lue.',m:4,on:false,man:'Créer la fiche client à la main'},{k:'devis',n:'Devis généré et envoyé',d:'Le devis part par SMS et e-mail après le diagnostic.',m:12,on:false,man:'Rédiger et envoyer le devis'},{k:'pieces',n:'Commande de pièces auto',d:'Pièces commandées au fournisseur dès la validation.',m:9,on:false,man:'Appeler le fournisseur'},{k:'sms',n:'SMS « véhicule prêt »',d:'Le client est prévenu sans un seul appel.',m:5,on:true,man:'Appeler le client'},{k:'facture',n:'Facture et demande d’avis',d:'Facture envoyée, avis Google demandé après 24 h.',m:8,on:true,man:'Éditer la facture'},{k:'relance',n:'Relances contrôle technique',d:'Les bons clients sont relancés au bon moment.',m:15,on:false,man:'Relancer chacun par téléphone'}];
+const TRIG={1:['rdv'],2:['devis'],3:['pieces'],4:[],5:['sms','facture']};
+let CL=[['Marc Durand','Seat Ibiza','VIP','il y a 3 j'],['Julie Lopez','Renault Clio V','Actif','aujourd’hui'],['Taxi Bleu SARL','Peugeot 308 ×6','VIP','hier'],['Samir Benali','Tesla Model 3','Nouveau','aujourd’hui'],['Claire Petit','Dacia Sandero','Actif','il y a 1 sem.'],['Hugo Martin','Golf VII','À relancer','il y a 14 mois'],['Inès Rousseau','Mini Cooper','À relancer','il y a 13 mois'],['Paul Vidal','Kangoo','Actif','il y a 2 sem.']].map(c=>({n:c[0],v:c[1],t:c[2],l:c[3]}));
+let sel='OR-24835',xp=60,saved=860,ca=2480,adv=0,rel=0,dlv=0,tab='pil',cf='all',cq='';const got={},feed=[];
+const cur=()=>V.find(v=>v.id===sel),lvl=()=>Math.min(4,Math.floor(xp/120));
+const fmt=m=>Math.floor(m/60)+' h '+String(Math.floor(m%60)).padStart(2,'0');
+const MIS=[['Activer 3 automatisations',()=>RULES.filter(r=>r.on).length>=3],['Faire avancer 3 ordres de réparation',()=>adv>=3],['Relancer 2 clients dans le CRM',()=>rel>=2],['Livrer un véhicule au client',()=>dlv>=1]];
+
+/* ——— UI utilitaires ——— */
+let tt;const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),3000)};
+const now=()=>new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+const log=m=>{feed.unshift({t:now(),m});feed.length=Math.min(feed.length,7);if(tab==='pil')fillFeed()};
+const gain=n=>{xp+=n;hud()};
+function hud(){const l=lvl();$('#ln').textContent='Niveau '+(l+1);$('#lt').textContent=LV[l]+' · '+xp+' XP';$('#xp').style.width=(l===4?100:(xp%120)/120*100)+'%';
+ MIS.forEach((m,i)=>{if(!got[i]&&m[1]()){got[i]=1;xp+=50;toast('🏆 Mission accomplie : '+m[0]+' (+50 XP)');log('Mission accomplie : '+m[0])}})}
+function setTheme(t){document.documentElement.dataset.theme=t;applyTheme()}
+$('#th').onclick=()=>{const d=isDark();setTheme(d?'light':'dark')};
+
+/* ——— scène 3D ——— */
+const R=new T.WebGLRenderer({canvas:$('#gl'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;R.outputEncoding=T.sRGBEncoding;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
+const S=new T.Scene(),C=new T.PerspectiveCamera(32,1,.1,300);
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches};
+const grid=new T.GridHelper(140,70,0x9db6e8,0xc3d1ee);grid.position.y=.02;S.add(grid);
+function applyTheme(){const d=isDark(),c=d?0x0b1220:0xe6ecf5;R.setClearColor(c);S.fog=new T.Fog(c,60,140);ground.material.color.setHex(d?0x101a2e:0xeef2f9);grid.material.opacity=d?.35:.7;grid.material.transparent=true;hemi.intensity=d?.55:.95}
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>applyTheme());
+const hemi=new T.HemisphereLight(0xffffff,0xaebfe0,.95);S.add(hemi);
+const sun=new T.DirectionalLight(0xffffff,.95);sun.position.set(14,26,12);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:80});sun.shadow.bias=-.0004;S.add(sun);
+const M=(c,o={})=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.05},o));
+const mt={w:M(0xf6f9fd),g:M(0xcdd7e7),b:M(0x1e63f5,{roughness:.4}),lb:M(0x7fb0ff,{roughness:.5}),d:M(0x1b2336,{roughness:.4}),gl:M(0xdbe8ff,{transparent:true,opacity:.33,roughness:.1})};
+const ground=new T.Mesh(new T.PlaneGeometry(300,300),M(0xeef2f9,{roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;S.add(ground);
+const box=(w,h,d,x,y,z,m,p)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;(p||S).add(o);return o};
+function wall(x1,z1,x2,z2,h,beam){const L=Math.hypot(x2-x1,z2-z1),a=Math.atan2(z2-z1,x2-x1),g=new T.Group();g.position.set((x1+x2)/2,0,(z1+z2)/2);g.rotation.y=-a;box(L,h,.12,0,h/2,0,mt.gl,g);if(beam)box(L,.16,.34,0,h+.08,0,mt.b,g);S.add(g)}
+box(24,.3,14,0,.15,0,M(0xf8fafe,{roughness:.8}));
+wall(-12,-7,12,-7,2.2,1);wall(12,-7,12,7,2.2,1);wall(-12,-7,-12,7,2.2,1);wall(-12,7,-3,7,2.2,1);wall(10,7,12,7,2.2,1);
+wall(-3,-7,-3,1,1.1,0);wall(-12,1,-3,1,1.1,0);
+[[-12,-7],[12,-7],[12,7],[-12,7],[-3,7],[10,7]].forEach(p=>box(.34,2.5,.34,p[0],1.25,p[1],mt.b));
+/* voiture */
+function car(c){const g=new T.Group(),m=M(c,{roughness:.32,metalness:.25});box(3.6,.7,1.7,0,.62,0,m,g);box(1.9,.62,1.5,-.15,1.25,0,m,g);box(1.95,.4,1.52,-.15,1.3,0,mt.d,g);
+ [-1,1].forEach(x=>[-1,1].forEach(z=>{const w=new T.Mesh(new T.CylinderGeometry(.38,.38,.3,18),mt.d);w.rotation.x=Math.PI/2;w.position.set(x*1.15,.38,z*.82);w.castShadow=true;g.add(w)}));
+ box(.12,.14,.4,1.8,.7,.55,M(0xfff6c8,{emissive:0xffe9a0,emissiveIntensity:.6}),g);box(.12,.14,.4,1.8,.7,-.55,M(0xfff6c8,{emissive:0xffe9a0,emissiveIntensity:.6}),g);g.userData.m=m;return g}
+function person(c){const g=new T.Group(),m=M(c);const b=new T.Mesh(new T.CylinderGeometry(.26,.3,.95,14),m);b.position.y=.8;b.castShadow=true;g.add(b);const h=new T.Mesh(new T.SphereGeometry(.23,16,12),M(0xf1d9c8));h.position.y=1.5;h.castShadow=true;g.add(h);S.add(g);return g}
+/* atelier : 3 ponts */
+const BX=[2.5,6,9.5],bays=BX.map(x=>{const p=box(3.7,.14,2.1,x,.35,-3,mt.b);[-2,2].forEach(s=>box(.22,2.4,.22,x+s,1.4,-4.3,mt.b));box(4.4,.18,.22,x,2.65,-4.3,mt.lb);box(1,.9,.7,x+2.6,.75,-5.8,mt.lb);return{p,y:0}});
+/* stock : rayonnages */
+function rack(x,z,len){[.55,1.2,1.85,2.5].forEach((y,li)=>{box(len,.09,.95,x,y,z,mt.lb);for(let i=0;i<len/1.15-.4;i++){const c=[mt.b,mt.w,mt.g,mt.lb][(i+li)%4];box(.7+.3*((i*7+li)%3)/2,.45,.7,x-len/2+.8+i*1.15,y+.28,z,c)}});for(let i=0;i<=len;i+=len/3)box(.13,2.7,.13,x-len/2+i,1.4,z-.45,mt.b)}
+rack(-7.6,-5.7,8);rack(-7.6,-3.1,8);box(2.2,.18,1.6,-5,.4,-.2,mt.w);box(.9,.9,.9,-5.2,.95,-.2,mt.b);
+/* accueil */
+box(3.4,1.05,1.1,-8.6,.8,4,mt.b);box(3.7,.1,1.35,-8.6,1.35,4,mt.w);box(.7,.45,.06,-8.6,1.65,3.9,mt.d);
+[[-5.2,5.4],[-6.4,5.4],[-5.2,2.2]].forEach(p=>box(1,.55,.9,p[0],.55,p[1],mt.lb));
+const pl=new T.Mesh(new T.SphereGeometry(.55,16,12),M(0x9cc2ff));pl.position.set(-11,1,5.8);pl.castShadow=true;S.add(pl);box(.5,.5,.5,-11,.45,5.8,mt.w);
+/* extérieur */
+[[-15,-4],[-17,2],[-14.5,8],[14.5,-5],[16,3]].forEach((p,i)=>{const s=new T.Mesh(new T.SphereGeometry(1.2+i%2*.4,20,16),M(0x6fa4ff,{transparent:true,opacity:.85}));s.position.set(p[0],1.3,p[1]);s.castShadow=true;S.add(s)});
+const road=box(300,.06,5,0,.03,17.5,M(0xd5deee));for(let x=-40;x<40;x+=5)box(2,.07,.2,x,.07,17.5,mt.w);
+const amb=car(0x4c8bff);S.add(amb);amb.position.set(-30,0,16.4);
+/* véhicules */
+const LOC=v=>v.s===0?new T.Vector3([-9,-5.5,-2][v.park],0,10.5):v.s<5?new T.Vector3(BX[v.bay],0,-3):new T.Vector3(3.5+3*V.filter(o=>o.s===5).indexOf(v),0,9.4);
+const pick=[];
+V.forEach(v=>{v.g=car(v.col);v.g.traverse(o=>{if(o.isMesh)o.userData.v=v});v.g.traverse(o=>o.isMesh&&pick.push(o));v.p=LOC(v);v.g.position.copy(v.p);v.yaw=-Math.PI/2;v.g.rotation.y=v.yaw;v.route=[];S.add(v.g)});
+function place(v){const L=LOC(v),c=v.p,o1=c.z>8,o2=L.z>8,r=[];if(o1!==o2)r.push(new T.Vector3(T.MathUtils.clamp(o1?L.x:c.x,3,9),0,10.2));r.push(L);v.route=r}
+/* personnel */
+const WK=[[0x1e63f5,[0,-5.4],[4,-1.4]],[0xf6f9fd,[5,-1.2],[10,-5.5]],[0x1e63f5,[8,-1.5],[11,-3]],[0xf6f9fd,[-9.5,-1],[-4.5,-1.2]]].map(w=>({g:person(w[0]),a:new T.Vector3(w[1][0],0,w[1][1]),b:new T.Vector3(w[2][0],0,w[2][1]),t:Math.random()*6}));
+person(0x1e63f5).position.set(-8.6,.3,4.9);person(0xf6f9fd).position.set(-8.6,.3,2.8);
+const ring=new T.Mesh(new T.RingGeometry(2.3,2.6,56),new T.MeshBasicMaterial({color:0x2b6dff,transparent:true,opacity:.9,side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;S.add(ring);
+/* contrôles */
+const ctl=new T.OrbitControls(C,$('#gl'));ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.maxPolarAngle=1.42;ctl.minDistance=6;ctl.maxDistance=60;ctl.screenSpacePanning=false;
+const PRE={all:[[24,22,26],[0,0,1]],atelier:[[13,10,6],[6,.8,-3.2]],stock:[[-15,9,5],[-7.6,1,-4.5]],accueil:[[-14,8,12],[-8,.5,3.5]],parking:[[0,9,23],[-4,.3,10.4]]};
+let tw=null;const fly=(p,t)=>{tw={p:new T.Vector3(...p),t:new T.Vector3(...t)}};ctl.addEventListener('start',()=>tw=null);
+C.position.set(...PRE.all[0]);ctl.target.set(...PRE.all[1]);
+function zone(z){$$('#zones button').forEach(b=>b.classList.toggle('on',b.dataset.z===z));fly(...PRE[z]);if(z==='atelier'||z==='parking')tab!=='ord'&&0}
+$('#zones').onclick=e=>{const b=e.target.closest('button');if(b)zone(b.dataset.z)};
+function focusV(v){const p=v.p;fly([p.x+7,6.5,p.z+8],[p.x,.8,p.z])}
+function select(id,f){sel=id;stepper();updTags();if(f)focusV(cur());if(tab==='ord')render()}
+/* étiquettes HTML */
+const tg=$('#tags'),TG=[];
+function mkTag(html,pos,cls,fn){const e=document.createElement('div');e.className='tag g '+(cls||'');e.innerHTML=html;e.onclick=fn;tg.appendChild(e);TG.push({e,pos,v:new T.Vector3()});return e}
+V.forEach(v=>{v.tag=mkTag('',()=>new T.Vector3(v.p.x,v.g.position.y+2.5,v.p.z),'',()=>select(v.id,true))});
+[['Atelier','3 ponts',[6,3.4,-6],'atelier'],['Stock','alerte pièces',[-7.6,3.5,-6.4],'stock'],['Accueil','1 client',[-8.6,2.4,4],'accueil'],['Parking','2 véhicules',[-6,2,11],'parking']].forEach(z=>mkTag(`<span>${z[0]}</span><small>${z[1]}</small>`,()=>new T.Vector3(...z[2]),z[0]==='Stock'?'al':'',()=>zone(z[3])));
+function updTags(){V.forEach(v=>{v.tag.innerHTML=`<span>${v.pl}</span><small>${v.m}</small><b>${v.s===5?'Livré ✓':STEPS[v.s]}</b>`;v.tag.classList.toggle('sel',v.id===sel)})}
+/* clic sur véhicule */
+const ray=new T.Raycaster(),mp=new T.Vector2();let dn=null;const cv=$('#gl');
+cv.addEventListener('pointerdown',e=>dn=[e.clientX,e.clientY]);
+cv.addEventListener('pointerup',e=>{if(!dn||Math.hypot(e.clientX-dn[0],e.clientY-dn[1])>5)return;mp.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(mp,C);const h=ray.intersectObjects(pick)[0];if(h)select(h.object.userData.v.id,true)});
+cv.addEventListener('pointermove',e=>{if(e.buttons)return;mp.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(mp,C);cv.style.cursor=ray.intersectObjects(pick)[0]?'pointer':''});
+
+/* ——— logique métier ——— */
+function advance(v){
+ if(v.s>=5){toast('Ce véhicule est déjà livré.');return}
+ if(v.s===0){const b=[0,1,2].find(i=>!V.some(o=>o!==v&&o.s>=1&&o.s<=4&&o.bay===i));if(b==null){toast('Aucun pont libre : terminez d’abord une réparation.');return}v.bay=b}
+ v.s++;adv++;ca+=v.s===5?v.amt:0;gain(15);if(v.s===5)dlv++;
+ log(v.id+' · '+v.m+' → '+STEPS[v.s]);place(v);
+ (TRIG[v.s]||[]).forEach(k=>{const r=RULES.find(x=>x.k===k);if(r.on){saved+=r.m;gain(5);toast('⚡ '+r.n+' : exécuté automatiquement, −'+r.m+' min');log('⚡ '+r.n+' (−'+r.m+' min)')}else toast('✋ À faire à la main : '+r.man+'. Activez « '+r.n+' » pour gagner '+r.m+' min.')});
+ updTags();stepper();hud();render();
+}
+function stepper(){const v=cur();$('#steps').innerHTML=`<div class="sh"><b>${v.id} · ${v.m}</b><small>${v.pl} · ${v.cl}</small></div><div class="st">${STEPS.map((s,i)=>`<div class="s ${i<v.s||v.s===5?'d':i===v.s?'c':''}"><i></i>${s}</div>`).join('')}</div><button class="nx" data-a="next" ${v.s>=5?'disabled':''}>${v.s===0?'Assigner à un pont →':v.s>=5?'Livré ✓':'Étape suivante →'}</button>`}
+$('#steps').onclick=e=>{if(e.target.closest('[data-a=next]'))advance(cur())};
+
+/* ——— panneaux ——— */
+const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
+const P={
+pil:()=>`<div class="kp"><div class="k hi"><small>Temps gagné cette semaine</small><b id="kS">${fmt(saved)}</b></div><div class="k"><small>Véhicules en cours</small><b id="kV">${V.filter(v=>v.s>=1&&v.s<=4).length}</b></div><div class="k"><small>CA du jour</small><b id="kC">${ca.toLocaleString('fr-FR')} €</b></div><div class="k"><small>Ponts occupés</small><b>${V.filter(v=>v.s>=1&&v.s<=4).length}/3</b></div><div class="k"><small>Automations actives</small><b>${RULES.filter(r=>r.on).length}/6</b></div></div><h3>Missions</h3>${MIS.map((m,i)=>`<div class="ms ${got[i]?'ok':''}"><i>${got[i]?'✓':''}</i>${m[0]}</div>`).join('')}<h3>Activité en direct</h3><div id="fd"></div>`,
+ord:()=>V.map(v=>`<button class="cd ${v.id===sel?'sel':''}" data-a="sel" data-id="${v.id}"><div class="av">${v.pl.slice(0,2)}</div><div><b>${v.id} · ${v.m}</b><small>${v.pl} · ${v.cl}</small></div><span class="ch ${v.s===5?'o':''}">${v.s===5?'Livré':STEPS[v.s]}</span></button>`).join('')+'<h3>Astuce</h3><div class="fd">Cliquez sur un véhicule dans la 3D ou dans cette liste : la caméra le suit, puis faites-le avancer avec le bouton en bas.</div>',
+crm:()=>`<input type="text" id="cs" placeholder="Rechercher un client…" value="${cq}" aria-label="Rechercher un client"><div class="fl">${[['all','Tous'],['VIP','VIP'],['À relancer','À relancer']].map(f=>`<button data-a="flt" data-id="${f[0]}" class="${cf===f[0]?'on':''}">${f[1]}</button>`).join('')}</div><div id="cl">${cls()}</div><h3>Nouveau client</h3><input type="text" id="cn" placeholder="Nom du client" aria-label="Nom du client"><button class="nx" data-a="add" style="width:100%">Ajouter au CRM</button>`,
+aut:()=>`<div class="k hi" style="margin-bottom:10px"><small>Gain total estimé</small><b>${fmt(saved)}</b></div>`+RULES.map(r=>`<div class="ru"><div><b>${r.n}</b><small>${r.d} −${r.m} min par exécution</small></div><button class="sw" data-a="rule" data-id="${r.k}" aria-pressed="${r.on}" aria-label="Activer ${r.n}"></button></div>`).join('')};
+function cls(){const l=CL.filter(c=>(cf==='all'||c.t===cf)&&(c.n+c.v).toLowerCase().includes(cq.toLowerCase()));return l.length?l.map((c,i)=>`<div class="cd"><div class="av">${ini(c.n)}</div><div><b>${c.n}</b><small>${c.v} · ${c.l}</small></div><span class="ch ${c.t==='À relancer'?'w':''}">${c.t}</span>${c.t==='À relancer'?`<button class="sm" data-a="rel" data-id="${CL.indexOf(c)}">Relancer</button>`:''}</div>`).join(''):'<div class="fd">Aucun client trouvé.</div>'}
+function fillFeed(){const f=$('#fd');if(f)f.innerHTML=feed.map(x=>`<div class="fd"><small>${x.t}</small>${x.m}</div>`).join('')}
+function render(){$('#pb').innerHTML=P[tab]();if(tab==='pil')fillFeed();if(tab==='crm')$('#cs').oninput=e=>{cq=e.target.value;$('#cl').innerHTML=cls()}}
+$('#pt').onclick=e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.t;$$('#pt button').forEach(x=>x.classList.toggle('on',x===b));render()};
+$('#pb').onclick=e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,id=t.dataset.id;
+ if(a==='sel')select(id,true);
+ if(a==='flt'){cf=id;render()}
+ if(a==='rel'){const c=CL[+id];c.t='Actif';c.l='aujourd’hui';rel++;saved+=15;gain(10);toast('📨 Relance envoyée à '+c.n+' : −15 min de travail manuel');log('Relance envoyée à '+c.n);render();hud()}
+ if(a==='add'){const n=$('#cn').value.trim();if(!n){toast('Saisissez un nom de client.');return}CL.unshift({n,v:'Véhicule à renseigner',t:'Nouveau',l:'aujourd’hui'});gain(5);toast('Client ajouté : '+n);log('Nouveau client : '+n);cq='';cf='all';render()}
+ if(a==='rule'){const r=RULES.find(x=>x.k===id);r.on=!r.on;if(r.on){gain(20);toast('✅ Activé : '+r.n)}render();hud()}};
+
+/* ——— boucle ——— */
+function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);C.aspect=w/h;C.fov=w/h<.9?55:32;C.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+const clk=new T.Clock(),tmp=new T.Vector3();let el=0,sec=0;
+const ang=(a,b)=>{let d=(b-a)%(Math.PI*2);if(d>Math.PI)d-=Math.PI*2;if(d<-Math.PI)d+=Math.PI*2;return a+d};
+function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clk.getDelta());el+=dt;
+ if(tw){C.position.lerp(tw.p,.06);ctl.target.lerp(tw.t,.06);if(C.position.distanceTo(tw.p)<.05)tw=null}
+ ctl.update();
+ V.forEach(v=>{const r=v.route;let tyaw=-Math.PI/2;if(r.length){const t=r[0],dx=t.x-v.p.x,dz=t.z-v.p.z,d=Math.hypot(dx,dz);if(d<.15)r.shift();else{v.p.x+=dx/d*Math.min(d,7*dt);v.p.z+=dz/d*Math.min(d,7*dt);tyaw=Math.atan2(-dz,dx)}}
+  v.yaw+=(ang(v.yaw,tyaw)-v.yaw)*Math.min(1,8*dt);v.g.rotation.y=v.yaw;
+  const inB=v.s>=1&&v.s<=4&&!r.length,b=bays[v.bay];if(inB)b.t=1;
+  v.g.position.set(v.p.x,0,v.p.z)});
+ bays.forEach((b,i)=>{const occ=V.find(v=>v.s>=1&&v.s<=4&&v.bay===i&&!v.route.length);b.y+=((occ?1.15:0)-b.y)*Math.min(1,4*dt);b.p.position.y=.35+b.y-(occ?.0:0);if(occ)occ.g.position.y=b.y+.35});
+ const v=cur();ring.position.set(v.p.x,.06+v.g.position.y*.0,v.p.z);ring.scale.setScalar(1+Math.sin(el*4)*.06);v.g.userData.m.emissive.setHex(0x1e63f5);v.g.userData.m.emissiveIntensity=.12+Math.sin(el*4)*.08;V.forEach(o=>{if(o!==v)o.g.userData.m.emissiveIntensity=0});
+ WK.forEach(w=>{w.t+=dt*.5;const k=(Math.sin(w.t)+1)/2;w.g.position.lerpVectors(w.a,w.b,k);w.g.rotation.y=Math.atan2(Math.cos(w.t)*(w.b.x-w.a.x),Math.cos(w.t)*(w.b.z-w.a.z));w.g.position.y=Math.abs(Math.sin(w.t*8))*.04});
+ amb.position.x+=dt*5;if(amb.position.x>32)amb.position.x=-32;amb.rotation.y=0;
+ const W=innerWidth,H=innerHeight;TG.forEach(t=>{tmp.copy(t.pos()).project(C);const ok=tmp.z<1&&Math.abs(tmp.x)<1.1;t.e.style.display=ok?'':'none';if(ok)t.e.style.transform=`translate(${(tmp.x*.5+.5)*W}px,${(-tmp.y*.5+.5)*H}px) translate(-50%,-110%)`});
+ sec+=dt;if(sec>1){sec=0;const n=RULES.filter(r=>r.on).length;saved+=n*.18;const k=$('#kS');if(k)k.textContent=fmt(saved);const c=$('#kC');if(c)c.textContent=ca.toLocaleString('fr-FR')+' €'}
+ R.render(S,C)}
+/* événements simulés */
+const EV=['Nouveau RDV : Mme Garnier, vidange, jeudi 14 h','Pièces reçues : plaquettes avant (lot de 12)','Avis Google 5★ reçu de M. Bernard','Alerte stock : plaquettes AV, 2 restantes','Rappel envoyé : contrôle technique de M. Roux'];let ei=0;
+setInterval(()=>{log(EV[ei++%EV.length])},9000);
+applyTheme();updTags();stepper();hud();render();log('Garage ouvert. Bonne journée !');log('2 véhicules attendent à l’accueil');loop();
+})();
+</script>
+</body>
+</html>
